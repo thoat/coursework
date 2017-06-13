@@ -1,6 +1,16 @@
+<<<<<<< Updated upstream
 .Rproj.user
 .Rhistory
 *.RData
 *.csv
 *~
 *.zip
+=======
+.Rproj.user
+.Rhistory
+*.RData
+*.ipynb
+*.csv
+*~
+*.zip
+>>>>>>> Stashed changes

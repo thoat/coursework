@@ -5,6 +5,7 @@
 *.csv
 *~
 *.zip
+<<<<<<< HEAD
 =======
 .Rproj.user
 .Rhistory
@@ -14,3 +15,6 @@
 *~
 *.zip
 >>>>>>> Stashed changes
+=======
+.ipynb_checkpoints
+>>>>>>> 8a35b759a50e7c8d8a0e7a2a1acbdc76a6be38cd

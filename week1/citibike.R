@@ -97,14 +97,21 @@ trips %>%
   head(1)
 
 # compute the average number of trips taken during each of the 24 hours of the day across the entire month
-hours <- Vectorize(hour)
 (trips_per_hour <- 
   trips %>%
-  group_by(starthour=hours(starttime), startdate=as.Date(starttime)) %>%
+  group_by(starthour=hour(starttime), startdate=as.Date(starttime)) %>%
   summarize(num_trips=n()) %>%
   group_by(starthour) %>%
   summarize(avg_trips=mean(num_trips))) 
 ggplot(trips_per_hour, aes(x = starthour, y=avg_trips)) + geom_bar(stat = "identity")
+
+#ANOTHER WAY (by Ilana) BUT SLOWER
+(trips_per_hour <-
+  trips %>%
+  group_by(starthour = format(starttime, format = "%H"), startdate=as.Date(starttime)) %>%
+  summarize(num_trips=n()) %>%
+  group_by(starthour) %>%
+  summarize(avg_trips=mean(num_trips))) 
 
 # what time(s) of day tend to be peak hour(s)?
 filter(trips_per_hour, avg_trips==max(avg_trips))

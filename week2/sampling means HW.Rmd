@@ -51,7 +51,7 @@ for (iter in 1:100) {
   # Base R version: hist(X[,1])
   
   # There is a really nice function in R called "sample" which lets us take a random sub sample of our data say I'd like to take a sample of 25 observations 
-  obs = 25
+  #obs = 25
   total_samps = 100
   #sample_means = matrix(0, total_samps, 1)
   sample_means = rep(0,total_samps)

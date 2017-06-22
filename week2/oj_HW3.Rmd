@@ -1,0 +1,186 @@
+---
+title: "Orange Juice & Tuna Fish HW"
+author: "Thoa Ta"
+date: "June 21, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+setwd("~/GitHub/ds3-2017/coursework/week2")
+df <- read.csv("oj.csv")
+colnames(df)[1-17]
+
+library(dplyr)
+library(plyr)
+library(tidyr)
+library(ggplot2)
+library(reshape2)
+
+################################################
+# How store demographics are related to demand
+################################################
+mymodel1 <- 
+  glm(data = df, 
+      formula = logmove ~ log(price)*brand*feat + 
+        AGE60 + EDUC + ETHNIC + INCOME + HHLARGE + 
+        WORKWOM + HVAL150 + SSTRDIST + SSTRVOL + CPDIST5 + CPWVOL5)
+summary(mymodel1)
+# What demographics are significantly (t>2) related to demand?
+# Use 5-fold cross validation to compare the MSE of the model with & without sociodemographic controls
+## 1st way: by hand
+## 2nd way: by built-in functions
+set.seed(17)
+cv.error1.10=rep(0, 10)
+for (i in 1:10) {
+  cv.error1.10[i] = cv.glm(df, mymodel1, K=5)$delta[1]
+}
+cv.error1.10
+
+set.seed(17)
+cv.error6.10=rep(0, 10)
+for (i in 1:10) {
+  cv.error6.10[i] = cv.glm(df, mymodel6, K=5)$delta[1]
+}
+cv.error6.10
+
+######################################## 
+# Interpreting coefficients
+#############################
+# What are the means and percentiles of HVAL150 and INCOME?
+summary(df$HVAL150)
+##      Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##   0.002509 0.123486 0.346154 0.343766 0.528313 0.916700 
+summary(df$INCOME)
+##   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  9.867  10.456  10.635  10.617  10.797  11.236 
+
+# If we move from median(HVAL150) to 75th percentile i.e. 3rd quartile(HVAL150), how much does the log(quantity) change each week on average?
+coef(mymodel1)["HVAL150"]
+## 0.357561 (from the full model)
+## 0.3575605 (from the command above)
+HVAL150.median <- quantile(df$HVAL150, 0.5)
+HVAL150.thirdQ <- quantile(df$HVAL150, 0.75)
+diff <- (HVAL150.thirdQ - HVAL150.median)
+diff <- exp(coef(mymodel1)["HVAL150"]*diff)
+diff
+
+HVAL150.median <- summary(df$HVAL150)["Median"]
+HVAL150.thirdQ <- summary(df$HVAL150)["3rd Qu."]
+diff2 <- (HVAL150.thirdQ - HVAL150.median)
+diff2 <- exp(coef(mymodel1)["HVAL150"]*diff2)
+diff2
+
+
+# If we move from median(INCOME) to 75th percentile i.e. 3rd quartile(INCOME), how much does the log(quantity) change each week on average?
+INCOME.median <- summary(df$INCOME)["Median"]
+INCOME.thirdQ <- summary(df$INCOME)["3rd Qu."]
+d_inc <- (INCOME.thirdQ - INCOME.median)
+d_inc <- exp(coef(mymodel1)["INCOME"]*d_inc)
+d_inc
+
+#############################################
+# Let's see if these variables impact price sensitivity. Add two interaction terms (with logprice) to the model to test this.
+#############################################
+mymodel2 <- 
+  glm(data = df, 
+      formula = logmove ~ log(price)*brand*feat + 
+        AGE60 + EDUC + ETHNIC + log(price)*INCOME + HHLARGE + 
+        WORKWOM + log(price)*HVAL150 + SSTRDIST + SSTRVOL + CPDIST5 + CPWVOL5)
+summary(mymodel2)
+
+# What are the coefficients on the interaction terms?
+coef(mymodel2)["log(price):HVAL150"]
+##  2.133143
+coef(mymodel2)["log(price):INCOME"]
+## 0.1010217
+
+# 
+## Yes. Generally when you are richer, you are less price-elastic.
+
+# What are the coefficients on the constant terms?
+coef(mymodel2)["HVAL150"]
+## -1.290007
+coef(mymodel2)["INCOME"]
+## -0.3375432
+## It looks like when you are richer, you buy less orange juice. Unlike regression from 2b, here the coef is negative.
+
+# If we move from median() to 75th percentile i.e. 3rd quartile(), how much does the log(quantity) change each week on average?
+priceINCOME.median <- summary(df$INCOME)["Median"]
+priceINCOME.thirdQ <- summary(df$INCOME)["3rd Qu."]
+d_p_inc <- (priceINCOME.thirdQ - priceINCOME.median)
+d_p_inc <- exp(coef(mymodel2)["log(price):INCOME"]*d_p_inc)
+d_p_inc
+## 1.016463 
+
+priceHVAL150.median <- summary(df$HVAL150)["Median"]
+priceHVAL150.thirdQ <- summary(df$HVAL150)["3rd Qu."]
+d_p_hval <- (priceHVAL150.thirdQ - priceHVAL150.median)
+d_p_hval <- exp(coef(mymodel2)["log(price):HVAL150"]*d_p_hval)
+d_p_hval
+## 1.474872
+
+###############################
+# Intertemporal substitution
+###############################
+# First, create a new df which is like the old one except that the week variable will change by a single week
+
+df1 <- df
+df1$week <- df$week +1
+# df1 now has NEXT week and not the current one. If we merge this by weeks now, this is last week's price (i.e. "lagged price")
+myvars <- c("price", "week", "brand", "store")
+df1 <- df1[myvars]
+df_with_lagged_prices <- merge(df, df1, by=c("week", "brand","store"))
+detach(package:plyr)
+df_with_lagged_prices <- 
+  df_with_lagged_prices %>%
+  rename(price.thisWeek = price.x, price.lastWeek = price.y)
+
+# Now run a regression with this week's log(quantity) on current and last week's price
+mymodel3 <-
+  glm(data = df_with_lagged_prices,
+      formula = logmove ~ log(price.thisWeek) + log(price.lastWeek)) 
+summary(mymodel3)
+
+mymodel4 <-
+  glm(data = df_with_lagged_prices, 
+      logmove ~ log(price.thisWeek)*brand*feat + 
+                log(price.thisWeek)*brand + log(price.lastWeek)*brand + 
+                INCOME * brand +
+                log(price.lastWeek)*AGE60 + AGE60*feat*INCOME +
+                log(price.thisWeek)*EDUC*INCOME + 
+                ETHNIC*feat*EDUC*INCOME + 
+                log(price.lastWeek)*HHLARGE + log(price.thisWeek)*HHLARGE*feat +
+                log(price.thisWeek)*WORKWOM*EDUC*INCOME + log(price.lastWeek)*WORKWOM*EDUC + 
+                log(price.thisWeek)*HVAL150 + 
+                log(price.thisWeek)*SSTRDIST*EDUC + 
+                SSTRVOL*EDUC + CPDIST5*EDUC + 
+                log(price.lastWeek)*CPWVOL5*EDUC)
+summary(mymodel4)
+
+set.seed(17)
+cv.error4.10=rep(0, 5)
+for (i in 1:5) {
+  cv.error4.10[i] = cv.glm(df_with_lagged_prices, mymodel4, K=5)$delta[1]
+}
+cv.error4.10
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

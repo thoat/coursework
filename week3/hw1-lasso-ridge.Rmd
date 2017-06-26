@@ -1,0 +1,129 @@
+---
+title: 'W3-Day1: Lasso & Ridge'
+author: "Thoa Ta"
+date: "June 26, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(reshape2)
+library(glmnet)
+library(boot)
+library(modelr)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+# Number of rows (or data points)
+N <- 100
+# Number of columns (or covariates, features)
+K <- 100
+
+mse_test_ols <- rep(0, 200)
+mse_test_lasso <- rep(0, 200)
+mse_test_ridge <- rep(0, 200)
+mse_train_ols <- rep(0, 200)
+mse_train_lasso <- rep(0, 200)
+mse_train_ridge <- rep(0, 200)
+
+# Create Sparse Beta
+b_true <- c(rep(5,4),rep(0,96))
+
+for (sims in 1:200) {
+
+# Create a X matrix of N data points and K variates
+X <- matrix(rnorm(N*K, mean=0, sd=1), nrow=N, ncol=K)
+
+# This is Random Beta
+b_true <- matrix(rnorm(K*1, mean=0, sd=1), K, 1)
+e <- matrix(rnorm(N*1, mean=0, sd=1), N, 1)
+Y <- X %*% b_true + e
+head(Y)
+train_data <- data.frame(Y,X)
+
+myRidge <- cv.glmnet(X, Y, alpha=0, lambda=10^seq(-4,0,0.1))
+plot(myRidge)
+
+myLasso <- cv.glmnet(X, Y, alpha=1, lambda=10^seq(-5,0,0.1))
+plot(myLasso)
+
+myOLS <- glm(data=train_data, Y ~ X)
+head(coef(myOLS))
+
+# Create test data
+X_new <- matrix(rnorm(N*K, mean=0, sd=1), nrow=N, ncol=K)
+e_new <- matrix(rnorm(N*1, mean=0, sd=1), N, 1)
+Y_new <- X_new %*% b_true + e_new
+test_data <- data.frame(Y_new, X_new)
+
+###############################################
+# Generate prediction errors on train data
+###############################################
+pred_y_ols <- predict(myOLS, newdata=train_data)
+mse_train_ols[sims] <- mean((train_data$Y - pred_y_ols)^2)
+
+#lambda.min is the optimal lambda, the one that gives you the lowest cv-error, the one that corresponds to the left-most vertical line on the graph.
+pred_y_ridge <- predict.cv.glmnet(myRidge, newx=X, s="lambda.min")  
+mse_train_ridge[sims] <- mean((Y - pred_y_ridge)^2)
+
+pred_y_lasso <- predict.cv.glmnet(myLasso, newx=X, s="lambda.min")  
+mse_train_lasso[sims] <- mean((Y - pred_y_lasso)^2)
+
+###############################################
+# Generate prediction errors on test data
+###############################################
+pred_y_ols_new <- predict(myOLS, newdata=test_data)
+mse_test_ols[sims] <- mean((test_data$Y_new - pred_y_ols_new)^2)
+
+pred_y_ridge_new <- predict.cv.glmnet(myRidge, newx=X_new, s="lambda.min")  
+mse_test_ridge[sims] <- mean((Y_new - pred_y_ridge_new)^2)
+
+pred_y_lasso_new <- predict.cv.glmnet(myLasso, newx=X_new, s="lambda.min")  
+mse_test_lasso[sims] <- mean((Y_new - pred_y_lasso_new)^2)
+
+}
+results <- data.frame(mse_test_ols = mean(mse_test_ols),
+                      mse_test_lasso = mean(mse_test_lasso),
+                      mse_test_ridge = mean(mse_test_ridge),
+                      mse_train_ols = mean(mse_train_ols),
+                      mse_train_lasso = mean(mse_train_lasso),
+                      mse_train_ridge = mean(mse_train_ridge)
+                      )
+results
+
+
+##########
+# Results
+##########
+# Results should roughly be (Sparse Model)  --> better suits Lasso's strength "just a few do matter"
+#    Lasso     Ridge     OLS
+#tr:
+#te:    *
+
+# Results should roughly be (Non-Sparse Model)  --> better suits Ridge's strength "everything matters"
+#    Lasso     Ridge     OLS
+#tr:
+#te:              *
+
+# * denotes winner
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

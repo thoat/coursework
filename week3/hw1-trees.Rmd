@@ -1,0 +1,82 @@
+---
+title: 'W3-Day1: Trees'
+author: "Thoa Ta"
+date: "June 26, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rpart)
+library(rpart.plot)
+library(tidyr)
+library(ggplot2)
+library(reshape2)
+library(glmnet)
+setwd("~/GitHub/ds3-2017/coursework/week3")
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+#############################
+# A neater way to write code
+#############################
+# df = data.frame(x = 1:100)
+# df$e = rnorm(100)
+# df$y = df$x + df$e
+# tree = rpart(y~x, data=df)
+# rpart.plot(tree)
+
+N <- 100
+X <- matrix(as.numeric(seq(1:100)))
+e <- matrix(rnorm(n=N, mean=0, sd=1), nrow=N, ncol=1)
+b <- rep(1,1)  #b SHOULD BE ONLY 1x1, not Nx1
+
+Y <- X %*% b + e
+df <- data.frame(Y, X)
+tree1 <- rpart(Y ~ X, df)
+rpart.plot(tree1)
+### Got 50-50 splits because this is a linear model w/ slope=1, because otherwise, the MSE of one of the two groups will be huge due to outliers.
+### The clusters (in the leaves) are roughly same-sized, i.e. we are making uniform steps up up up.
+
+##############################
+# A neater way to write code
+#############################
+# df$x2 = df$x * df$x 
+# df$y2 = df$x2 + df$e
+
+
+Y2 <- I(X*X) %*% b + e
+df2 <- data.frame(Y2, X)
+tree2 <- rpart(Y2 ~ X, df2)
+rpart.plot(tree2)
+### The clusters are distributed differently now
+X3 <- matrix(as.numeric(X>50), nrow=N, ncol=1)
+Y3 <- X3 %*% 2 + e
+df3 <- data.frame(Y3, X)
+tree3 <- rpart(Y3 ~ X, df3)
+rpart.plot(tree3)
+
+tree_mse <- mean((Y3 - predict(tree3, df3))^2)
+
+X_lasso <- cbind(X, I(X*X), I(X*X*X))
+lasso <- cv.glmnet(X_lasso, Y3, alpha=1)
+lasso_mse <- mean((Y3 - predict.cv.glmnet(lasso, newx=X_lasso, s="lambda.min"))^2)
+### Conclusion: no single method is always better than the other. Tree will not always beat lasso. Tree is good if you have discontinuities (i.e. clear distribution of y-values). Lasso is good if there's a few that really matter. Ridge is good if everything has some weight.
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

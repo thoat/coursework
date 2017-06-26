@@ -1,0 +1,159 @@
+---
+title: "Orange Juice HW"
+author: "Thoa Ta"
+date: "June 20, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+#setwd("~/GitHub/ds3-2017/coursework/week2")
+df <- read.csv("oj.csv")
+colnames(df)[1-17]
+
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(reshape2)
+
+######################
+# Visualizing price.
+######################
+# Make a box plot of price
+ggplot(df, aes(factor("All brands"), price)) +
+  geom_boxplot() +
+  xlab("Orange juice")
+
+# Make a box plot of log price
+ggplot(df, aes(factor("All brands"), log(price))) +
+  geom_boxplot() +
+  labs(x = "Orange juice", y = "Ln of price")
+
+# Make a box plot of price, but separate out each brand
+ggplot(df, aes(factor(brand), price)) +
+  geom_boxplot(aes(fill = brand)) +
+  xlab("Orange juice per brands")
+
+# Do the same for log price
+ggplot(df, aes(factor(brand), log(price))) +
+  geom_boxplot(aes(fill = brand)) +
+  xlab("Orange juice per brands") +
+  ylab("Ln of price")
+
+######################################
+# Visualizing the quantity/price rls
+######################################
+# Plot logmove and logprice for each brand.
+ggplot(df, aes(x = logmove, y = log(price))) +
+  geom_point(aes(color = factor(brand))) +
+  labs(x = "Ln of quantity", y = "Ln of price")
+# insights derived: you can see the change in quantity as relative to change in price
+
+#####################################
+# Estimating the relationship
+#####################################
+# Do a regression of log quantity on log price.
+mymodel1 <- glm(formula = logmove ~ log(price), data = df)
+summary(mymodel1)
+# the model fits quite well because the std. error is small. The elastity is abs(-1.60113), it is quite large i.e. the price is quite elastic i.e. people are quite sensitive to price change
+
+# Add in an intercept term for each brand (add brand to the regression)
+mymodel2 <- glm(formula = logmove ~ log(price) + brand, data = df)
+summary(mymodel2)
+# The price elasticity increases insignificantly. The std. error of the logprice feature also increases a bit. 
+
+# Allow the elasticities to differ by brand. 
+mymodel3 <- glm(formula = logmove ~ log(price) * brand, data = df)
+summary(mymodel3)
+
+# Hold out 20% of your sample randomly. Estimate the model on the remaining 80%. Use the predict command to see how well the model fits on the rest of the data (e.g. y_hat <- predict(my_model, newx = test_matrix))
+
+spliter <- floor(0.8 * nrow(df))
+
+index <- 1:nrow(df)
+set.seed(1) #so that the experiment will generate the same random sequence everytime
+trainindex <- sample(index, spliter)
+
+train_set <- df[trainindex,]
+test_set <- df[-trainindex ,]
+
+mymodel4 <- glm(formula = logmove ~ log(price) * brand, data = train_set)
+summary(mymodel4)
+y_hat <- predict(mymodel4, newdata = test_set)
+
+# what is the proportion variation explained in the outcome of the testing data?
+# i.e., what is 1-(SSerror/SStotal)
+y_actual <- test_set$logmove
+rsq <- 1-sum((y_actual - y_hat)^2)/sum((y_actual - mean(y_actual))^2)
+print(rsq)
+
+##################################
+# Impact of "featuring in store"
+##################################
+# Which brand is featured the most? Make a ggplot to show this. Hint: one way is to use position = "jitter", within the aes(color = factor(var_name)) of ggplot.
+ggplot(df, aes(x = factor(feat), y = brand, color = brand)) +
+  geom_point(position = "jitter")  #creating a "crowd" around each point!!
+# What is the average price and featured rate of each brand? Hint: aggregate(df[, x:y], list(df$var_name), mean) where x and y are the column numbers of the two variables you care about.
+### One way:
+detach(package:plyr)
+df %>%
+  group_by(brand) %>%
+  summarize(avg_price = mean(price), featured_rate = mean(feat))
+
+### Second way:
+aggregate(df[, c("price","feat")], list(df$brand), mean)
+
+# How should we incorporate the feature variable into our regression? Start with an additive formulation (e.g. feature impact sales, but not through price).
+mymodel5 <- glm(data = df, formula = logmove ~ log(price) * brand + feat)
+summary(mymodel5)
+
+# Now run a model where features can impact sales and sale sensitivity. 
+mymodel6 <- glm(data = df, formula = logmove ~ log(price) * brand * feat)
+summary(mymodel6)
+
+# Now add what you think are the most relevant sociodemographic controls and produce the regression results from that regression as well. 
+mymodel7 <- glm(data = df, formula = logmove ~ log(price) * brand * feat * INCOME)
+summary(mymodel7)
+
+mymodel8 <- glm(data = df, formula = logmove ~ log(price) * feat + log(price) * brand + INCOME * brand)
+summary(mymodel8)
+
+####################
+# Overall analysis
+####################
+# Based on your work, which brand has the most elastic demand, which has the least elastic?
+### log(price):dominicks   -2.65543
+### log(price):minute      -2.43617
+### log(price):trop        -2.05295
+
+### dom                   18.39794
+### minute                12.09617
+### trop                  8.70347
+
+### dom:INCOME            -0.76346
+### minute:INCOME         -0.11429
+### trop:INCOME           0.22564
+
+## ==> Dominicks seems to have the most elastic demand, and Tropicana has the least.
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -51,7 +51,7 @@ rpart.plot(tree1)
 # df$y2 = df$x2 + df$e
 
 
-Y2 <- I(X*X) %*% b + e
+Y2 <- I(X^2) %*% b + e
 df2 <- data.frame(Y2, X)
 tree2 <- rpart(Y2 ~ X, df2)
 rpart.plot(tree2)
@@ -64,7 +64,7 @@ rpart.plot(tree3)
 
 tree_mse <- mean((Y3 - predict(tree3, df3))^2)
 
-X_lasso <- cbind(X, I(X*X), I(X*X*X))
+X_lasso <- cbind(X, I(X^2), I(X^3))
 lasso <- cv.glmnet(X_lasso, Y3, alpha=1)
 lasso_mse <- mean((Y3 - predict.cv.glmnet(lasso, newx=X_lasso, s="lambda.min"))^2)
 ### Conclusion: no single method is always better than the other. Tree will not always beat lasso. Tree is good if you have discontinuities (i.e. clear distribution of y-values). Lasso is good if there's a few that really matter. Ridge is good if everything has some weight.

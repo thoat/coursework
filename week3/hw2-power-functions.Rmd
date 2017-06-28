@@ -1,0 +1,82 @@
+---
+title: "W3-D2-Power Calculations"
+author: "Thoa Ta"
+date: "June 27, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/GitHub/ds3-2017/coursework/week3")
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+
+#N <- 4
+#d <- 0.5
+
+######
+# 2a
+######
+get_power <- function(N, d, M=100, a=0.05) {
+ power <- 0
+  for (i in 1:M) {
+   df <- data.frame(W = rep(0:1, each=N/2))
+   df$e <- rnorm(N)
+   df$y <- d * df$W + df$e
+   model <- glm(formula=y ~ W, data=df)
+   #df$y_hat <- predict(model, newx = df$W) 
+   #d_hat <- (mean(df$y_hat) - mean(df$y))/(sd(df$y)/sqrt(N))
+   p_value <- summary(model)$coefficients["W",4]
+   power <- power + as.numeric(p_value < a)
+ }
+ return(power/M) 
+}
+
+get_power(1000, 0.5)
+get_power(1000, 0.5, a=0.01)
+
+######
+# 2b
+######
+get_min_N <- function(d, pow=0.8) {
+  # I want to know what N will give me power=0.8
+  requiredN = 2; #DON'T PUT n=0 HERE
+  while(get_power(requiredN, d, M, 0.05) < pow){
+    requiredN = requiredN + 2;
+  };
+  return(requiredN)
+}
+
+get_min_N(d=0.05)
+
+######
+# 2c
+######
+get_min_d <- function(N, pow=0.8) {
+  power_se <- function(d) {
+    new_power <- get_power(N,d)
+    
+  }
+  #N: minimum d
+  #optim()
+  
+}
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

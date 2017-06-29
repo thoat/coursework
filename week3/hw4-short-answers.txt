@@ -1,0 +1,18 @@
+These are the outcome metrics that were tracked in each interview.
+The ones that could be impacted by the min-wage change are:
+
+EMPFT*
+EMPPT*
+NMGRS*
+WAGE_ST*
+INCTIME*
+FIRSTINC*
+BONUS --not in 2nd interview, but similar to SPECIAL2
+PCTAFF --not in 2nd interview, "% employees affected by new minimum"
+MEALS*
+OPEN*
+HRSOPEN*
+PSODA*
+PFRY*
+PENTREE*
+NREGS*

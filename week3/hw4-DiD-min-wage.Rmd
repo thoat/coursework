@@ -1,0 +1,134 @@
+---
+title: "HW4-DiD on Minimum Wage"
+author: "Thoa Ta"
+date: "June 29, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/GitHub/ds3-2017/coursework/week3")
+library(plyr)
+library(tidyverse)
+library(readr)
+#library(modelr)
+#library(glmnet)
+#library(boot)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+###################
+# Read in the data
+###################
+card_krueger <- read_csv('Card & Krueger (1994) - dataset.csv')
+
+##########################
+# Have a look at the data
+##########################
+head(card_krueger)
+summary(card_krueger)
+
+#########################
+# Computer the "diffs": do the outcome metrics change significantly between 2 interviews. Do this separately for each state.
+#########################
+card_krueger <-
+  card_krueger %>%
+  mutate(diff_empft = EMPFT2 - EMPFT,
+         diff_emppt = EMPPT2 - EMPPT,
+         diff_open = OPEN2R - OPEN,
+         diff_hrsopen = HRSOPEN2 - HRSOPEN,
+         diff_wage_st = WAGE_ST2 - WAGE_ST,
+         diff_pfry = PFRY2 - PFRY)
+
+diffs <-
+  card_krueger %>%
+  group_by(STATE) %>%
+  summarize(mean_diff_empft = mean(diff_empft, na.rm=T),
+            mean_diff_emppt = mean(diff_emppt, na.rm=T),
+            mean_diff_open = mean(diff_open, na.rm=T),
+            mean_diff_hrsopen = mean(diff_hrsopen, na.rm=T),
+            mean_diff_wage_st = mean(diff_wage_st, na.rm=T),
+            mean_diff_pfry = mean(diff_pfry, na.rm=T))
+
+p_values <- c()
+p_values <- c(t.test(card_krueger$EMPFT, mu=mean((card_krueger$EMPFT2), na.rm=T))$p.value,
+              t.test(card_krueger$EMPPT, mu=mean((card_krueger$EMPPT2), na.rm=T))$p.value,
+              t.test(card_krueger$OPEN, mu=mean((card_krueger$OPEN2R), na.rm=T))$p.value,
+              t.test(card_krueger$HRSOPEN, mu=mean((card_krueger$HRSOPEN2), na.rm=T))$p.value,
+              t.test(card_krueger$WAGE_ST, mu=mean((card_krueger$WAGE_ST2), na.rm=T))$p.value,
+              t.test(card_krueger$PFRY, mu=mean((card_krueger$PFRY2), na.rm=T))$p.value)
+ndx <- seq(1:length(p_values))
+significance <- matrix()
+for (i in ndx) {
+  significance[i] <- (p_values[i] < 0.05)
+}
+significance
+### FALSE FALSE FALSE FALSE  TRUE  TRUE
+
+###############################################################################
+attach(card_krueger)
+play_d <- card_krueger[ which(STATE==0), ]
+detach(card_krueger)
+
+
+p_values <- c()
+p_values <- c(t.test(play_d$EMPFT, play_d$EMPFT2)$p.value,
+              t.test(play_d$EMPPT, play_d$EMPPT2)$p.value,
+              t.test(play_d$OPEN, play_d$OPEN2R)$p.value,
+              t.test(play_d$HRSOPEN, play_d$HRSOPEN2)$p.value,
+              t.test(play_d$WAGE_ST, play_d$WAGE_ST2)$p.value,
+              t.test(play_d$PFRY, play_d$PFRY2)$p.value
+              )
+ndx <- seq(1:length(p_values))
+significance <- c()
+for (i in ndx) {
+  significance[i] <- (p_values[i] < 0.05)
+}
+significance
+### [1] FALSE FALSE FALSE FALSE FALSE FALSE
+########################################################################
+
+# p_values[i+1] <- t.test(card_krueger$EMPFT, mu=mean((card_krueger$EMPFT2), na.rm=T))$p.value
+# p_values[i+1] <- t.test(card_krueger$EMPPT, mu=mean((card_krueger$EMPPT2), na.rm=T))$p.value
+# p_values[i+1] <- t.test(card_krueger$OPEN, mu=mean((card_krueger$OPEN2), na.rm=T))$p.value
+# p_values[i+1] <- t.test(card_krueger$HRSOPEN, mu=mean((card_krueger$HRSOPEN2), na.rm=T))$p.value
+# p_values[i+1] <- t.test(card_krueger$WAGE_ST, mu=mean((card_krueger$WAGE_ST2), na.rm=T))$p.value
+# p_values[i+1] <- t.test(card_krueger$PFRY, mu=mean((card_krueger$PFRY2), na.rm=T))$p.value
+
+card_krueger %>%
+  select(diff_empft:diff_pfry)
+# diff_emppt, diff_hrsopen, diff_open, diff_wage_st
+
+#####################################################
+# Computer the "diff-in-diff" via the regression method.
+#####################################################
+model <- lm(data=card_krueger, 
+             formula=diff_wage_st ~ STATE)
+summary(model)
+
+card_krueger %>%
+  group_by(STATE) %>%
+  summarize(pre_empft = mean(EMPFT, na.rm=T), 
+            post_emppt = mean(EMPFT2, na.rm=T)) %>%
+  gather("type", "value", 2:3, factor_key=T) %>%
+  #spread(type, value)
+  ggplot(aes(x=type, y=value, fill=as.factor(STATE))) +
+  geom_point() +
+  geom_smooth(method="lm")
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

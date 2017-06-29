@@ -3,10 +3,14 @@
 ## This is template about how to use make automate the workflow of R project
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Add to Windows Path: Open Windows Explorer; RClick on This Computer; Advanced System Settings; Advanced Tab; Environment variable; For the User change Path to add "C:\Program Files\RStudio\bin\pandoc" (quotes not needed) then "C:\Program Files\Microsoft\MRO-3.3.1\bin"
 =======
 # Make sure that Rscript.exe and pandoc are in your path (see Readmd.md for directions)
 >>>>>>> 4c1311f18b80773052258b9264b35cee6a613a58
+=======
+# Make sure that Rscript.exe and pandoc are in your path (see Readmd.md for directions)
+>>>>>>> 9a37c0e00b3de0321c80b9857e3f611828ecf17c
 
 .PHONY: list help all
 help : 
@@ -22,15 +26,21 @@ list:
 
 outputs.RData: analysis.R
 <<<<<<< HEAD
+<<<<<<< HEAD
 	RScript analysis.R
 
 writeup.html: writeup.Rmd outputs.RData
 	RScript -e "rmarkdown::render('writeup.Rmd')"
 =======
+=======
+>>>>>>> 9a37c0e00b3de0321c80b9857e3f611828ecf17c
 	Rscript.exe analysis.R
 
 writeup.html: writeup.Rmd outputs.RData
 	Rscript.exe -e "rmarkdown::render('writeup.Rmd')"
+<<<<<<< HEAD
 >>>>>>> 4c1311f18b80773052258b9264b35cee6a613a58
+=======
+>>>>>>> 9a37c0e00b3de0321c80b9857e3f611828ecf17c
 
 all: writeup.html

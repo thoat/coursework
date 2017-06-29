@@ -1,31 +1,89 @@
-library(tidyverse)
-library(tidyr)
 library(plyr)
-library(dplyr)
-library(modelr)
+library(tidyverse)
+#library(tidyr)
+#library(readr)
+#library(dplyr)
 library(ggplot2)
+library(modelr)
+library(lubridate)
+library(scales)
 
 # set plot theme
 theme_set(theme_bw())
 
-# read ratings from csv file
-teens_gaming <- read_csv('Teens_Gaming_2008_csv.csv')
-
-# for reference: same thing, using base R functions and explicitly setting column information
-ratings <- read.delim('ratings.csv',
-                      sep=',',
-                      header=F,
-                      col.names=c('user_id','movie_id','rating','timestamp'),
-                      colClasses=c('integer','integer','numeric','integer'))
+# read loans from csv file
+loans <- read_csv('Loan payments data.csv')
 
 ####################
 # brief look at data
 ####################
+head(loans)
+nrow(loans)
+str(loans)
+summary(loans)
 
-head(ratings)
-nrow(ratings)
-str(ratings)
-summary(ratings)
+#############
+# Clean data
+#############
+loans <-
+  loans %>%
+  mutate(effective_date = as.Date(effective_date, "%m/%d/%Y"),
+         due_date = as.Date(due_date, "%m/%d/%Y"),
+         paid_off_time = as.Date(paid_off_time, "%m/%d/%Y %H:%M"),
+         loan_status = as.factor(loan_status),
+         education = factor(education, levels = c("High School or Below", "college", "Bechalor", "Master or Above"))
+         )
+
+################
+# Data analysis
+################
+loans %>%
+  group_by(education, loan_status) %>%
+  summarize(count = n()) %>%
+  ggplot() +
+  geom_bar(aes(x = loan_status, y = count, fill = education), position="dodge", stat="identity")
+
+# Within one level of education, what is the pattern of paying off?
+loans %>%
+  group_by(education, loan_status) %>%
+  summarize(count = n()) %>%
+  # arrange(education) %>%
+  # group_by(education) %>%
+  mutate(percentage = count/sum(count)) %>%
+  ggplot() +
+  geom_bar(aes(x = loan_status, y = percentage, fill = education), position="dodge", stat="identity") +
+  scale_y_continuous(labels= percent)
+
+
+# Age and Loan Status, per Education Level
+loans %>%
+  ggplot() +
+  geom_histogram(aes(x = age)) +
+  facet_wrap(~loan_status)
+
+loans %>%
+  ggplot() +
+  geom_point(aes(x = age, y=loan_status, color=education))
+  
+# From Effective Date  
+paid <- 
+  loans %>%
+  filter(loan_status == "PAIDOFF") %>%
+  mutate(num_days_used = paid_off_time - effective_date + 1) %>%
+  mutate(percent_term_used = num_days_used/as.numeric(due_date - effective_date + 1)) 
+max(paid$percent_term_used)
+ggplot(paid) +
+  geom_boxplot(aes(x = as.factor(Principal), y=percent_term_used))
+
+ggplot(paid) +
+  geom_point(aes(x = Loan_ID, y=percent_term_used, shape = as.factor(Principal)))
+
+ggplot(paid) +
+  geom_point(aes(x = age, y = percent_term_used))
+  
+  
+  
+
 
 
 df = data.frame(id = 1:100)

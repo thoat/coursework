@@ -1,0 +1,124 @@
+---
+title: "W3-Day5 Variable Pick; Regression Discontinuity"
+author: "Thoa Ta"
+date: "June 30, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plyr)
+library(readr)
+library(tidyverse)
+library(ggplot2)
+
+```
+
+## Picking Control Variables
+
+Outcome: unemployment in 2 years later
+Treatment: money spent on job training
+
+(a) Confounding variables:
+- economic crisis in 2008
+- budget deficit in 2008
+- unemployment rate in 2008
+- employees' skill in 2008
+
+*** Political variation, Budget surplus, etc.: strongly correlated with the decision to conduct Job Training, but has nothing to do with Unemployment Rate ==> better NOT to include in your model, otherwise you'll confuse yourself.
+
+(b) Variance-reducing variables:
+- aggregate econmic variables in 2010 (e.g. no. of new companies in 2010, economic crisis in 2010)
+
+(c) Unrelated variables:
+- college education 
+
+(d) Bad controls: 
+- unemployment in 2009
+- budget deficit in 2009
+- employees' skill in 2009
+- almost anything else measuredin 2009 or later
+
+## Regressin Discontinuity on Incumbency Effect (Lee, 2007)
+*Outcome: DWinNxt (whether or not a dem wins the next election)
+*Treatment: DemWin (whether or not dems win the current election) 
+*Running variable: DiffDPct (how much Dems won/lost by in)
+
+(b) Run a simple regression of DDWinNxt against DemWin. Do you think the coefficient on DemWin gives an unbiased estimate of the incumbency effect (i.e. if the natural experiment condition holds). Why or why not?
+
+```{r b}
+incumben_eff <- read_csv("Lee(2007)_RDReplication.csv")
+
+dem_model <- glm(data = incumben_eff,
+             formula = DWinNxt ~ DemWin)
+summary(dem_model)
+
+#### The estimates of Intercept & DemWin tell us that if you're Democrat
+```
+(c) Classify variables: (metrics per congressional district)
+* Confouding:  
+- DWinPrv (happening BEFORE DemWin -> not "bad control", correlate to both DWin & DWinNxt --> "confounding")
+- CDNum
+- BlackPct
+- UrbanPct
+
+* Variance-reducing:
+
+* Unrelated: 
+- GovWkPct
+- YearElec
+
+* Bad control: 
+```{r c}
+bigger_model <- glm(data = incumben_eff,
+                    formula = DWinNxt ~ DemWin + DWinPrv + BlackPct + ForgnPct)
+summary(bigger_model)
+
+### After adding these "controls", coeff for DemWin goes down. Is it completely unbiased yet?
+```
+(d) Give an additional example of a bad control variable in this setting.
+MediaCoverage: whether the media cover the democrat more than the republican.
+
+(e) Use DifDPct as a forcing variable to run a regression discontinuity.
+
+```{r e}
+
+#see hw sol
+### After supplying these terms in, the treatment effect of DemWin is significantly lowered.
+### Sometimes you don't want to have so many complicated terms (i.e. poly too high) if your data set is small. 
+
+rd_data <- incumben_eff[ which(abs(incumben_eff$DifDPct - 0) < 15), ]
+
+rd_model <- glm(data = incumben_eff,
+                formula = DWinNxt ~ DemWin + DWinPrv + BlackPct + ForgnPct) #DWinNxt ~ DemWin + DWinPrv + CDNumAtL + BlackPct + UrbanPct)
+summary(rd_model)
+
+plot_data <-
+  incumben_eff %>%
+  filter(!is.na(DifDPct) & !is.na(DWinNxt) & !is.na(DemWin)) %>%
+  add_predictions(rd_model, var="Pred_DWinNxt") %>%
+  select(DifDPct, DemWin, DWinNxt, Pred_DWinNxt)
+ggplot(plot_data, aes(x = DifDPct, y = Pred_DWinNxt)) +
+  geom_point(alpha=0.25) +
+  ylim(0,1) +
+  stat_smooth()
+```
+(f) Install and use the package rdd to implement this same regression discontinuity design.
+``` {r use package}
+install.packages("rdd")
+library(rdd)
+
+RDestimate(data = rd_data,
+           formula = DWinNxt ~ DifDPct + DemWin | DWinPrv + CDNumAtL + BlackPct + UrbanPct,
+           subset = abs(rd_data$DifDPct - 0) < 15)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

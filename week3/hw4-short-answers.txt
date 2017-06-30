@@ -16,3 +16,15 @@ PSODA*
 PFRY*
 PENTREE*
 NREGS*
+NREGS11*
+
+HW SOL:
+baseline: NJ, change 0.7 for empft
+the compare group: PA, change -2.6 for empft
+
+1. do i beLeive in parallel trend?
+2. how big is my uncertainty?
+
+***: Better choice: do analysis on overall, then on guys with wage1 < min-wage only.
+
+I STILL DON'T UNDERSTAND HOW TO DO THE HOMEWORK.

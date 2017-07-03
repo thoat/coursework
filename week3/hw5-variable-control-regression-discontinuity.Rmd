@@ -7,11 +7,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+setwd("~/GitHub/ds3-2017/coursework/week3")
 library(plyr)
 library(readr)
 library(tidyverse)
-library(ggplot2)
-
 ```
 
 ## Picking Control Variables

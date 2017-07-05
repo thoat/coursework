@@ -1,3 +1,4 @@
+setwd("~/GitHub/ds3-2017/coursework/week3/project_template")
 library(plyr)
 library(tidyverse)
 #library(tidyr)
@@ -37,14 +38,16 @@ loans <-
 ################
 # Data analysis
 ################
-loans %>%
+cnt_loanstatus_by_edu <-
+  loans %>%
   group_by(education, loan_status) %>%
   summarize(count = n()) %>%
   ggplot() +
   geom_bar(aes(x = loan_status, y = count, fill = education), position="dodge", stat="identity")
 
 # Within one level of education, what is the pattern of paying off?
-loans %>%
+pct_loanstatus_by_edu <-
+  loans %>%
   group_by(education, loan_status) %>%
   summarize(count = n()) %>%
   # arrange(education) %>%
@@ -56,12 +59,14 @@ loans %>%
 
 
 # Age and Loan Status, per Education Level
-loans %>%
+cnt_loanstatus_by_age <-
+  loans %>%
   ggplot() +
   geom_histogram(aes(x = age)) +
   facet_wrap(~loan_status)
 
-loans %>%
+loanstatus_at_age_and_edu <-
+  loans %>%
   ggplot() +
   geom_point(aes(x = age, y=loan_status, color=education))
   
@@ -71,17 +76,33 @@ paid <-
   filter(loan_status == "PAIDOFF") %>%
   mutate(num_days_used = paid_off_time - effective_date + 1) %>%
   mutate(percent_term_used = num_days_used/as.numeric(due_date - effective_date + 1)) 
-max(paid$percent_term_used)
-ggplot(paid) +
-  geom_boxplot(aes(x = as.factor(Principal), y=percent_term_used))
+#max(paid$percent_term_used)
 
-ggplot(paid) +
+pct_term_used_and_principal <-
+  ggplot(paid, aes(x = as.factor(Principal), y=percent_term_used)) +
+  geom_boxplot() +
+  geom_point(position="jitter")
+
+pct_term_used_dist_by_principal <- 
+  ggplot(paid) +
+  geom_density(aes(fill = as.factor(Principal), x=percent_term_used), alpha=0.25)  
+
+pct_term_used_and_id <-
+  ggplot(paid) +
   geom_point(aes(x = Loan_ID, y=percent_term_used, shape = as.factor(Principal)))
 
-ggplot(paid) +
-  geom_point(aes(x = age, y = percent_term_used))
-  
-  
+
+#################
+# Save the work
+################
+save(cnt_loanstatus_by_edu, 
+     pct_loanstatus_by_edu, 
+     cnt_loanstatus_by_age,
+     loanstatus_at_age_and_edu,
+     pct_term_used_and_principal,
+     pct_term_used_dist_by_principal,
+     pct_term_used_and_id,
+     file="hw3-outputs.RData") 
   
 
 

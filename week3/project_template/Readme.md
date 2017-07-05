@@ -1,7 +1,7 @@
 # This is a Readme file #
 
 ## How to build ##
-Go to the build directory and type `make all`. The output is `writeup.html`.
+Go to the build directory and type `make all`. The output is `hw3-writeup.html`.
 
 ## Dependencies ##
 * R (Rscript), pandoc, make 
@@ -10,3 +10,6 @@ Go to the build directory and type `make all`. The output is `writeup.html`.
 
 ### Versions ###
 List the platform and program versions that it is known to work on. Include statistical package versions as well.
+R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)

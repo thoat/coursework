@@ -1,37 +1,46 @@
 ---
 title: '"W3-Day3-Loan Study Writeup"'
-author: "Thoa Ta"
+author: "Thoa & Ro"
 date: "June 28, 2017"
 output: html_document
 ---
-Contact info
+Contact info: MSR-DS3 2017
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
-load("outputs.RData")
+load("hw3-outputs.RData")
 ```
 
 ## Introduction
 This is a template for a write-up. You can see more advanced ones [here](http://rmarkdown.rstudio.com/developer_document_templates.html) and [here](http://rmarkdown.rstudio.com/gallery.html).
 
 ## Data
-We used data from ....
+We used data from Kaggle: https://www.kaggle.com/zhijinzhai/loandata
 
-## Anlyses
-We analyzed the data and made a figure
+## Hypotheses
+These are our scientific hypotheses and why they are interesting or important.
+
+## Analyses
+We analyzed the data and made these figures.
 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r plot, echo=FALSE}
+plot(cnt_loanstatus_by_edu)
+plot(pct_loanstatus_by_edu)
+plot(cnt_loanstatus_by_age)
+plot(loanstatus_at_age_and_edu)
+plot(pct_term_used_and_principal)
+plot(pct_term_used_dist_by_principal)
+plot(pct_term_used_and_id)
 ```
 
-And including variables in text. The previous p-value was `r pval`.
+We don't have any variables to include in text, but if yes, we can output it by typing r variable_name.
 
 ## Discussion
-We think we did a great job.
+We think we did a great job. We think this means that.
 
 ## Appendix
-More details about the data.
+More details about the data: this data set is small, just around 500 observations. It is about people borrowing bullet loans. A bullet loan is a financial product that requires one-time pay-off, instead of an installment schedule. Loan status can be (1) paid off, (2) paid off after being put in collection, and (3) never paid off even after being in collection.
 
-We registered the study at ....
+We (hypothetically) registered the study at AsPredicted.

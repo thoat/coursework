@@ -22,7 +22,7 @@ def get_calendar(listing_id):
     return r.json()
 
 def pretty_json(obj):
-    return json.dumps(obj, indent=4, sort_keys=True)
+    return json.dumps(obj, indent=4, sort_keys=True)    #json.dumps is to encode data, while json.loads(varname) is to decode data. In decoding, strings will be converted to unicode, lists to tuples
 
 if __name__ == "__main__":
     listing_id = 6412281

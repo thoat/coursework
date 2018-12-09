@@ -56,3 +56,21 @@ awk -F, '$5 ~ /Broadway/ && $9 ~ /Broadway/' tripdata.csv | wc -l
 # similar to: cut -d, -f15 tripdata.csv | sort | uniq -c
 awk -F, '{counts[$15]++} END {for (k in counts) print counts[k]" " k}' tripdata.csv
 ```
+
+## Data review in R
+
+Two ways to easily look at data in transposed view:
+
+* `str(mydata)`: (structure) function
+* `dplyr.glimpse(mydata)`: look at data in transposed view. Has a few advantages over `str()` (see `?glimpse`).
+
+## Plotting in R
+
+* Set image to a nice size
+
+```r
+# the 'options' function sets global options
+options(repr.plot.width = 4, repr.plot.height = 4)
+```
+
+------

@@ -1,3 +1,7 @@
+# Practice R syntax EVERYDAY:
+
+https://practice.datacamp.com/p/2
+
 # Work left from Fri, 12/7/2018
 
 ## Commandline tutorials:

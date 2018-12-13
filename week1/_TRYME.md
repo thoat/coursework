@@ -74,3 +74,26 @@ options(repr.plot.width = 4, repr.plot.height = 4)
 ```
 
 ------
+
+## Project
+
+For ML/Prediction problems:
+
+1. First step: explore the data. make lots of plots.
+2. Choose an algorithm (scikilearn has a chart to help you choose an algorithm)
+3. How good is your algo: cross-validation
+  - keep track of your cross-validation scores -- use a lab notebook, make a note when you change sth & record the cv score
+  - save the script you use for each submission
+  - once you have sth working, then invest more time in feature engineering
+
+How to get good at DS:
+
+- Cross-training with different problems
+- Have vacation time to spend on (kaggle)
+- Others have helped me with DIY ds
+- Read people's questions & thought trains in Kaggle forums
+- Write up & put in resume/GitHub
+- kaggle does have its disadvantages. Don't overtrain yourself in Kaggle and miss out on other DS skills.
+  - kaggle tidies the data for you
+  - kaggle doesn't reward including error bars or presenting your results nicely
+  - lots of DS jobs are primarily stats with little ML. Kaggling does NOT help you learn __stats__ or __experimental design__.

@@ -12,10 +12,6 @@ https://practice.datacamp.com/p/2
 - Vectors, lists, dataframes: a [one page reference](http://www.statmethods.net/input/datatypes.html) and [more details](https://en.wikibooks.org/wiki/R_Programming/Data_types)
 - Rstudio's [data wrangling cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
 
-### Commandline:
-
-https://www.codecademy.com/courses/learn-the-command-line/quizzes/command-line-4 
-
 ### Memorize stuff:
 
 - 15-30 mins/day drilling all cards. Drill "failed" cards till bored. Retry all cards.
@@ -29,15 +25,10 @@ https://www.codecademy.com/courses/learn-the-command-line/quizzes/command-line-4
 
 ### Intro to R:
 
-- Resume at [Hadley's Advanced R](https://github.com/msr-ds3/coursework/tree/master/week1#intro-to-r) - might do like 30mins/day?
-
 - Fill in solutions to `./citibike.R`
-
-- [Cyclismo's](http://www.cyclismo.org/tutorial/R/index.html) more extensive tutorial (e.g. Distributions, Intermediate Plotting) -- SHORT ENOUGH, CAN BE DONE IN 1-2 DAYS
 
 - Maybe the day after:
    - Read ch2 & 3 in R for Data Science, and think about how to generate Fig1 and 2 in The Anatomy of the Long Tail.
-   - Hadley Wickham's [style guide](http://adv-r.had.co.nz/Style.html)
 
 ---
 NEXT
@@ -57,7 +48,6 @@ NEXT
 
 ### Commandline tutorials:
 
-- Pick up [CL crashcourse on "Learn Python the Hard Way"](https://learnpythonthehardway.org/book/appendix-a-cli/ex10.html)
 - Continue [here: _Learn more (optional)_](https://github.com/msr-ds3/coursework/tree/master/week1#learn-more-optional-1)
 
 - Exercise `citibike.sh`: continue 2-4 more questions
@@ -66,7 +56,23 @@ NEXT
 MAYBE:
 
 - ["R Packages" book](http://r-pkgs.had.co.nz/)
+
 MAYBE, MAYBE NOT: (cuz not help me w/ core stats & research design)
 
 - https://www.kaggle.com/learn/overview
 - https://www.kaggle.com/c/titanic#tutorials (mostly good for doing Kaggle competitions)
+
+## Work left from 12/13/2018 (Thu)
+
+### Commandline:
+
+- On Codecademy: [Learn Bash scripting](https://www.codecademy.com/courses/learn-the-command-line/lessons/learn-bash-scripting/exercises/introduction)
+- Pick up [CL crashcourse on "Learn Python the Hard Way"](https://learnpythonthehardway.org/book/appendix-a-cli/ex14.html)
+
+### R programming:
+
+- [Cyclismo's](http://www.cyclismo.org/tutorial/R/index.html) more extensive tutorial (e.g. Distributions, Intermediate Plotting) -- SHORT ENOUGH, CAN BE DONE IN 1-2 DAYS - PRIORITIZE THIS OVER Hadley's Advanced R, because this is more for DS while Hadley's is more for programming
+- Pick up [Hadley's Advanced R](http://adv-r.had.co.nz/Data-structures.html) - might do like a 30mins/day?
+
+- Next: week 2 - day 1: these stats topics are a bit tough & need more + spaced repettion practice!
+- After that, resume: data viz, data combine & reshape (incl. CLEANING DATA TUTS on DataCamp), Makefile & reproducibility

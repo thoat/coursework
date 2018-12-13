@@ -9,7 +9,7 @@ library(lubridate)
 trips <- read_csv('201402-citibike-tripdata.csv')
 
 # replace spaces in column names with underscores
-names(trips) <- gsub(' ', '_', names(trips))
+names(trips) <- gsub(' ', '_', names(trips)) # sub: 1st occurrence, gsub: all occurrences. Each element in vector `names(trips)` is searched separately. i.e. if using `sub` and each column name has more than 1 whitespace, then only the first whitespace is replaced.
 
 # convert dates strings to dates
 # trips <- mutate(trips, starttime = mdy_hms(starttime), stoptime = mdy_hms(stoptime))

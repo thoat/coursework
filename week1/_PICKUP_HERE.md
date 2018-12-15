@@ -76,3 +76,36 @@ MAYBE, MAYBE NOT: (cuz not help me w/ core stats & research design)
 
 - Next: week 2 - day 1: these stats topics are a bit tough & need more + spaced repettion practice!
 - After that, resume: data viz, data combine & reshape (incl. CLEANING DATA TUTS on DataCamp), Makefile & reproducibility
+
+## Work left from 12/15/2018 (Sat)
+
+### R syntax:
+
+- [Lists and double square brackets](http://www.r-tutor.com/r-introduction/list). Example:
+
+```{r}
+> lst <- list(
+   x = c(-5, 2),
+   y = c(TRUE, TRUE),
+   z = c("M", "N")
+)
+> str(lst)
+List of 3
+  $ x: num [1:2] -5 2
+  $ y: logi [1:2] TRUE TRUE
+  $ z: chr [1:2] "M" "N"
+> lst[2]
+$y
+[1] TRUE TRUE
+> lst[[2]]
+[1] TRUE TRUE
+```
+
+- [Factor levels](https://campus.datacamp.com/courses/free-introduction-to-r/chapter-4-factors-4?ex=4): 
+  - "When you first get a data set, you will often notice that it contains factors with specific factor levels. However, sometimes you will want to change the names of these levels for clarity or other reasons. R allows you to do this with the function `levels()`":
+
+```{r}
+data_vector <- c("data1", "data1", "data2", "data1", ...)
+factor_vector <- factor(data_vector)
+levels(factor_vector) <- c("newname1", "newname2", ...)
+```

@@ -109,3 +109,9 @@ data_vector <- c("data1", "data1", "data2", "data1", ...)
 factor_vector <- factor(data_vector)
 levels(factor_vector) <- c("newname1", "newname2", ...)
 ```
+
+## Work left from 12/21 (Fri)
+
+### R programming
+
+- Pick up [here](http://www.cyclismo.org/tutorial/R/basicOps.html)
